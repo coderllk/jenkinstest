@@ -1,35 +1,31 @@
-!groovy
-def getHost(){
-    def remote = [:]
-    remote.name = 'mysql'
-    remote.host = '192.168.4.100'
-    remote.user = 'root'
-    remote.port = 22
-    remote.password = 'QunyiC2~T'
-    remote.allowAnyHosts = true
-    return remote
-    
-}
 pipeline {
-    agent {label 'master'}
-    environment{
-        def server = ''
-    }   
+    agent {
+        docker {
+            image 'maven:3-alpine'
+            args '-v /root/.m2:/root/.m2'
+        }
+    }
     stages {
-        stage('init-server'){
+        stage('Build') {
             steps {
-                script {                 
-                   server = getHost()                                   
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
                 }
             }
         }
-        stage('use'){
+        stage('Deliver') {
             steps {
-                script {
-                  sshCommand remote: server, command: """                 
-                  if test ! -d aaa/ccc ;then mkdir -p aaa/ccc;fi;cd aaa/ccc;rm -rf ./*;echo 'aa' > aa.log
-                  """
-                }
+                echo 'Hello, JDK'
+                sh 'java -version'
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'my_aliyun', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '/usr/local/jenkinstest/script/start.sh', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/usr/local/jenkinstest', remoteDirectorySDF: false, removePrefix: 'target', sourceFiles: 'target/*.jar')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
     }
