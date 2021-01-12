@@ -8,6 +8,7 @@ def getHost(){
     remote.password = 'QunyiC2~T'
     remote.allowAnyHosts = true
     return remote
+    
 }
 pipeline {
     agent {label 'master'}
