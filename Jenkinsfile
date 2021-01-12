@@ -25,7 +25,7 @@ pipeline {
             steps {
                 echo 'Hello, JDK'
                 sh 'java -version'
-                sshPublisher(publishers: [sshPublisherDesc(configName: 'my_aliyun', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'nohup java -jar Jenkinstest-1.0-SNAPSHOT.jar > ./log/test.log &', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/usr/local/jenkinstest', remoteDirectorySDF: false, removePrefix: 'target', sourceFiles: 'target/*.jar')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'my_aliyun', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'nohup java -jar /usr/local/jenkinstest/Jenkinstest-1.0-SNAPSHOT.jar > ./log/test.log &', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/usr/local/jenkinstest', remoteDirectorySDF: false, removePrefix: 'target', sourceFiles: 'target/*.jar')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
             }
         }
     }
