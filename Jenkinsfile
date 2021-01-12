@@ -1,30 +1,34 @@
+!groovy
+def getHost(){
+    def remote = [:]
+    remote.name = 'mysql'
+    remote.host = '192.168.4.100'
+    remote.user = 'root'
+    remote.port = 22
+    remote.password = 'QunyiC2~T'
+    remote.allowAnyHosts = true
+    return remote
+}
 pipeline {
-    agent {
-        docker {
-            image 'maven:3-alpine'
-            args '-v /root/.m2:/root/.m2'
-        }
-    }
+    agent {label 'master'}
+    environment{
+        def server = ''
+    }   
     stages {
-        stage('Build') {
+        stage('init-server'){
             steps {
-                sh 'mvn -B -DskipTests clean package'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
+                script {                 
+                   server = getHost()                                   
                 }
             }
         }
-        stage('Deliver') {
+        stage('use'){
             steps {
-                echo 'Hello, JDK'
-                sh 'java -version'
+                script {
+                  sshCommand remote: server, command: """                 
+                  if test ! -d aaa/ccc ;then mkdir -p aaa/ccc;fi;cd aaa/ccc;rm -rf ./*;echo 'aa' > aa.log
+                  """
+                }
             }
         }
     }
